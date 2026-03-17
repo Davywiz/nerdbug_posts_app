@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nerdbug_posts_app/features/posts/data/models/post.dart';
 import 'package:nerdbug_posts_app/features/posts/data/providers/posts_provider.dart';
-import 'package:nerdbug_posts_app/features/posts/presentation/screens/post_details_placeholder_screen.dart';
+import 'package:nerdbug_posts_app/features/posts/presentation/screens/post_details_screen.dart';
 import 'package:nerdbug_posts_app/features/posts/presentation/widgets/post_list_item.dart';
 
 class PostsListScreen extends ConsumerWidget {
@@ -56,9 +56,7 @@ class PostsListScreen extends ConsumerWidget {
 
   void _openPostDetails(BuildContext context, Post post) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => PostDetailsPlaceholderScreen(post: post),
-      ),
+      MaterialPageRoute<void>(builder: (_) => PostDetailsScreen(post: post)),
     );
   }
 }
