@@ -2,6 +2,14 @@
 
 A Flutter assessment project for Nerdbug that fetches posts from `jsonplaceholder.typicode.com`, displays them in a responsive list, shows post details, and lets users mark posts as favorites.
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/posts-list-screen.jpg" alt="Posts list screen" width="30%" />
+  <img src="screenshots/post-details-screen.jpg" alt="Post details screen" width="30%" />
+  <img src="screenshots/favorited-post-screen.jpg" alt="Favorited post screen" width="30%" />
+</p>
+
 ## Project Overview
 
 This app was built to keep the implementation simple, readable, and interview-friendly. It focuses on the core assessment requirements:
