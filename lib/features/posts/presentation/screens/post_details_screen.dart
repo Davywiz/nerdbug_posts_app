@@ -58,6 +58,12 @@ class PostDetailsScreen extends ConsumerWidget {
                         ),
                       ),
                       Text(
+                        'Full post details',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      Text(
                         post.title,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),

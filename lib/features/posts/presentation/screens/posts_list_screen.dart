@@ -4,6 +4,7 @@ import 'package:nerdbug_posts_app/features/posts/data/models/post.dart';
 import 'package:nerdbug_posts_app/features/posts/data/providers/posts_provider.dart';
 import 'package:nerdbug_posts_app/features/posts/presentation/screens/post_details_screen.dart';
 import 'package:nerdbug_posts_app/features/posts/presentation/widgets/post_list_item.dart';
+import 'package:nerdbug_posts_app/features/posts/presentation/widgets/posts_state_view.dart';
 
 class PostsListScreen extends ConsumerWidget {
   const PostsListScreen({super.key});
@@ -14,9 +15,11 @@ class PostsListScreen extends ConsumerWidget {
     final favoritePostIds = ref.watch(favoritePostIdsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Posts')),
+      appBar: AppBar(title: const Text('Posts'), centerTitle: false),
       body: SafeArea(
         child: RefreshIndicator(
+          edgeOffset: 12,
+          displacement: 28,
           onRefresh: () => ref.refresh(postsProvider.future),
           child: postsAsync.when(
             data: (posts) {
@@ -30,11 +33,18 @@ class PostsListScreen extends ConsumerWidget {
                   constraints: const BoxConstraints(maxWidth: 720),
                   child: ListView.separated(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    itemCount: posts.length,
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                    itemCount: posts.length + 1,
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      final post = posts[index];
+                      if (index == 0) {
+                        return _PostsListHeader(
+                          totalPosts: posts.length,
+                          favoriteCount: favoritePostIds.length,
+                        );
+                      }
+
+                      final post = posts[index - 1];
                       return PostListItem(
                         post: post,
                         isFavorite: favoritePostIds.contains(post.id),
@@ -71,7 +81,15 @@ class _PostsLoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return const PostsStateView(
+      icon: Icons.article_outlined,
+      title: 'Loading posts',
+      message: 'Fetching the latest posts for you now.',
+      action: Padding(
+        padding: EdgeInsets.only(top: 4),
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 }
 
@@ -83,43 +101,16 @@ class _PostsErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(24),
-      children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 320),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.error_outline, size: 48),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Unable to load posts',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(message, textAlign: TextAlign.center),
-                      const SizedBox(height: 16),
-                      FilledButton(
-                        onPressed: onRetry,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return PostsStateView(
+      icon: Icons.cloud_off_rounded,
+      title: 'Unable to load posts',
+      message:
+          'Check your connection and try again. If the problem persists, the service may be temporarily unavailable.\n\n$message',
+      action: FilledButton.icon(
+        onPressed: onRetry,
+        icon: const Icon(Icons.refresh),
+        label: const Text('Try again'),
+      ),
     );
   }
 }
@@ -129,14 +120,83 @@ class _PostsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: const [
-        SizedBox(
-          height: 320,
-          child: Center(child: Text('No posts available right now.')),
+    return const PostsStateView(
+      icon: Icons.inbox_outlined,
+      title: 'No posts yet',
+      message:
+          'There are currently no posts to display. Pull down to refresh and try again.',
+    );
+  }
+}
+
+class _PostsListHeader extends StatelessWidget {
+  const _PostsListHeader({
+    required this.totalPosts,
+    required this.favoriteCount,
+  });
+
+  final int totalPosts;
+  final int favoriteCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colorScheme.primaryContainer, colorScheme.surface],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-      ],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
+        children: [
+          Text(
+            'Browse community posts',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          Text(
+            'Pull down anytime to refresh the list and tap the heart icon to keep track of favorites.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              height: 1.4,
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _HeaderChip(label: '$totalPosts posts'),
+              _HeaderChip(label: '$favoriteCount favorites'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderChip extends StatelessWidget {
+  const _HeaderChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Text(label),
+      ),
     );
   }
 }

@@ -85,7 +85,8 @@ void main() {
     await tester.tap(find.byTooltip('Add to favorites'));
     await tester.pump();
 
-    expect(find.text('Post #7 • Favorite'), findsOneWidget);
+    expect(find.text('Post #7'), findsOneWidget);
+    expect(find.text('Favorite'), findsOneWidget);
     expect(find.byTooltip('Remove from favorites'), findsOneWidget);
   });
 }

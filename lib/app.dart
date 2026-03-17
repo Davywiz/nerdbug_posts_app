@@ -12,6 +12,7 @@ class NerdbugPostsApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F766E)),
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        cardTheme: const CardThemeData(elevation: 0, margin: EdgeInsets.zero),
         useMaterial3: true,
       ),
       home: const PostsListScreen(),
