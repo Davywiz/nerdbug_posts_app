@@ -11,6 +11,7 @@ class PostsListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final postsAsync = ref.watch(postsProvider);
+    final favoritePostIds = ref.watch(favoritePostIdsProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Posts')),
@@ -36,7 +37,11 @@ class PostsListScreen extends ConsumerWidget {
                       final post = posts[index];
                       return PostListItem(
                         post: post,
+                        isFavorite: favoritePostIds.contains(post.id),
                         onTap: () => _openPostDetails(context, post),
+                        onFavoritePressed: () => ref
+                            .read(favoritePostIdsProvider.notifier)
+                            .toggle(post.id),
                       );
                     },
                   ),
